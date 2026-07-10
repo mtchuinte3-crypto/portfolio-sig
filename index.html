@@ -1,0 +1,1292 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Portfolio SIG – Projets</title>
+
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" />
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/proj4js/2.8.0/proj4.js"></script>
+
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: 'Segoe UI', Roboto, sans-serif;
+            background: #eef5ee;
+            color: #1a3a2a;
+            padding: 25px;
+        }
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 32px;
+            box-shadow: 0 20px 60px rgba(0, 40, 10, 0.12);
+            padding: 35px 45px;
+        }
+        h1 {
+            font-size: 2.5rem;
+            font-weight: 700;
+            color: #0d4a26;
+            border-left: 10px solid #2b7a4b;
+            padding-left: 24px;
+            display: flex;
+            align-items: center;
+            gap: 14px;
+            flex-wrap: wrap;
+        }
+        h1 i { color: #2b7a4b; }
+        h1 .sig-badge {
+            font-size: 1rem;
+            font-weight: 600;
+            background: #b38f00;
+            color: white;
+            padding: 4px 16px;
+            border-radius: 30px;
+            margin-left: 10px;
+        }
+        .description-portfolio {
+            font-size: 1.05rem;
+            color: #3d6b4f;
+            padding-left: 34px;
+            margin: 15px 0 25px 34px;
+            line-height: 1.6;
+        }
+        .section-title {
+            font-size: 2rem;
+            font-weight: 600;
+            color: #0d4a26;
+            margin-top: 40px;
+            margin-bottom: 20px;
+            padding-bottom: 10px;
+            border-bottom: 4px solid #bcd9bc;
+            display: flex;
+            align-items: center;
+            gap: 14px;
+            flex-wrap: wrap;
+        }
+        .section-title i { color: #2b7a4b; }
+        .section-title .badge-projet {
+            font-size: 0.75rem;
+            background: #1a5c36;
+            color: white;
+            padding: 2px 14px;
+            border-radius: 20px;
+            font-weight: 500;
+            margin-left: 10px;
+        }
+        .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 30px; margin: 25px 0; }
+        .grid-3 { display: grid; grid-template-columns: repeat(3, 1fr); gap: 25px; margin: 25px 0; }
+        .card {
+            background: #f8fbf8;
+            border-radius: 20px;
+            padding: 24px 22px;
+            border: 1px solid #deecde;
+            box-shadow: 0 4px 12px rgba(0, 30, 8, 0.04);
+            transition: 0.25s ease;
+        }
+        .card:hover {
+            transform: translateY(-6px);
+            box-shadow: 0 12px 28px rgba(0, 40, 12, 0.09);
+            border-color: #8cb88c;
+        }
+        .stat-number { font-size: 2.8rem; font-weight: 800; color: #0d4a26; line-height: 1.1; }
+        .stat-label { font-size: 1rem; color: #3d6b4f; font-weight: 500; }
+        .pill {
+            background: #e4f0e4;
+            padding: 4px 16px;
+            border-radius: 30px;
+            font-size: 0.85rem;
+            font-weight: 500;
+            color: #1a5c36;
+            display: inline-block;
+        }
+        .pill-green { background: #1a5c36; color: white; }
+        .pill-orange { background: #b38f00; color: white; }
+        .pill-red { background: #b22222; color: white; }
+        .pill-sig { background: #20B2AA; color: white; }
+        .pill-projet { background: #2b7a4b; color: white; }
+        .pill-tapia { background: #6b4c8a; color: white; }
+        .highlight-box {
+            background: #e6f1e6;
+            border-radius: 16px;
+            padding: 18px 24px;
+            border-left: 6px solid #2b7a4b;
+            margin: 18px 0;
+        }
+        .highlight-box-success { background: #e0f0e0; border-left-color: #1a8c4a; }
+        .leaflet-container {
+            border-radius: 16px;
+            border: 1px solid #cde0cd;
+            height: 500px;
+            width: 100%;
+        }
+        .gallery {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 20px;
+            margin: 20px 0;
+        }
+        .gallery-item {
+            background: #f0f7f0;
+            border-radius: 16px;
+            overflow: hidden;
+            border: 1px solid #d4e4d4;
+            transition: 0.2s;
+            text-align: center;
+            padding: 14px;
+        }
+        .gallery-item:hover { transform: scale(1.02); border-color: #2b7a4b; }
+        .gallery-item img {
+            width: 100%;
+            border-radius: 12px;
+            max-height: 200px;
+            object-fit: cover;
+            cursor: pointer;
+        }
+        .gallery-item .caption { font-size: 0.95rem; font-weight: 600; color: #1a4a2a; margin-top: 10px; }
+        .gallery-item .sub-caption { font-size: 0.8rem; color: #4d7a5d; }
+        .flex-row { display: flex; flex-wrap: wrap; gap: 20px; align-items: center; }
+        .chart-container { position: relative; height: 200px; max-width: 100%; }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 20px 0;
+            border-radius: 16px;
+            overflow: hidden;
+        }
+        th { background: #1a5c36; color: white; padding: 12px; text-align: left; font-weight: 600; }
+        td { padding: 12px; border-bottom: 1px solid #dce8dc; }
+        tr:hover { background: #f0f7f0; }
+        .legend {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 18px;
+            margin: 12px 0;
+            font-size: 0.9rem;
+        }
+        .legend span { display: flex; align-items: center; gap: 6px; }
+        .legend .legend-dot {
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            display: inline-block;
+        }
+        .loading {
+            text-align: center;
+            padding: 20px;
+            color: #4d7a5d;
+        }
+        .stats-mini {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 15px;
+            margin: 10px 0;
+        }
+        .stats-mini .item {
+            background: #eaf3ea;
+            padding: 6px 16px;
+            border-radius: 20px;
+            font-size: 0.85rem;
+        }
+        footer {
+            margin-top: 55px;
+            padding-top: 28px;
+            border-top: 2px solid #d4e4d4;
+            text-align: center;
+            font-size: 0.95rem;
+            color: #3d6b4f;
+        }
+        
+        .projet-menu {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 12px;
+            margin: 0 0 30px 34px;
+        }
+        .projet-menu .btn-projet {
+            background: #eaf3ea;
+            border: 2px solid transparent;
+            padding: 10px 24px;
+            border-radius: 30px;
+            font-weight: 600;
+            color: #1a4a2a;
+            cursor: pointer;
+            transition: 0.25s ease;
+            font-size: 0.95rem;
+        }
+        .projet-menu .btn-projet:hover {
+            background: #d4e4d4;
+            transform: translateY(-2px);
+        }
+        .projet-menu .btn-projet.active {
+            background: #1a5c36;
+            color: white;
+            border-color: #1a5c36;
+            box-shadow: 0 4px 12px rgba(26, 92, 54, 0.3);
+        }
+        .projet-menu .btn-projet i {
+            margin-right: 8px;
+        }
+        
+        .projet-content {
+            display: none;
+            animation: fadeIn 0.4s ease;
+        }
+        .projet-content.active {
+            display: block;
+        }
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        
+        .projet-header {
+            display: flex;
+            flex-wrap: wrap;
+            align-items: center;
+            gap: 16px;
+            margin-bottom: 20px;
+        }
+        .projet-header h2 {
+            font-size: 2rem;
+            color: #0d4a26;
+            font-weight: 700;
+        }
+        .projet-header .projet-badge {
+            background: #2b7a4b;
+            color: white;
+            padding: 4px 16px;
+            border-radius: 20px;
+            font-size: 0.8rem;
+            font-weight: 600;
+        }
+        .projet-header .periode {
+            color: #3d6b4f;
+            font-size: 0.95rem;
+        }
+        
+        .but-objectif {
+            background: #e6f1e6;
+            border-radius: 16px;
+            padding: 20px 24px;
+            margin: 15px 0;
+            border-left: 6px solid #2b7a4b;
+        }
+        .but-objectif h3 {
+            color: #0d4a26;
+            font-size: 1.2rem;
+            margin-bottom: 8px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        .but-objectif .but { font-weight: 600; color: #0d4a26; }
+        .but-objectif .objectif { font-weight: 600; color: #0d4a26; margin-top: 6px; }
+        .but-objectif p { color: #2d5a3f; line-height: 1.6; }
+        
+        .resultats-clefs {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+            gap: 15px;
+            margin: 15px 0;
+        }
+        .resultats-clefs .r-item {
+            background: #f8fbf8;
+            border-radius: 12px;
+            padding: 16px;
+            text-align: center;
+            border: 1px solid #deecde;
+        }
+        .resultats-clefs .r-item .r-nb {
+            font-size: 2.2rem;
+            font-weight: 800;
+            color: #0d4a26;
+        }
+        .resultats-clefs .r-item .r-label {
+            font-size: 0.85rem;
+            color: #3d6b4f;
+            font-weight: 500;
+        }
+        
+        .responsable-sig {
+            background: #f0f7f0;
+            border-radius: 16px;
+            padding: 16px 22px;
+            margin: 15px 0;
+            border-left: 4px solid #b38f00;
+        }
+        .responsable-sig h3 {
+            color: #0d4a26;
+            font-size: 1.1rem;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        .responsable-sig .nom {
+            font-weight: 600;
+            color: #0d4a26;
+            font-size: 1rem;
+        }
+        .responsable-sig .role-tags {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+            margin-top: 8px;
+        }
+        .responsable-sig .role-tags span {
+            background: #e4f0e4;
+            padding: 3px 14px;
+            border-radius: 20px;
+            font-size: 0.7rem;
+            color: #1a5c36;
+            font-weight: 500;
+        }
+        
+        .indicateurs-tapia {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+            margin: 15px 0;
+        }
+        .indicateurs-tapia .i-item {
+            background: #f8fbf8;
+            border-radius: 12px;
+            padding: 16px;
+            text-align: center;
+            border: 1px solid #deecde;
+            border-top: 4px solid #6b4c8a;
+        }
+        .indicateurs-tapia .i-item .i-nb {
+            font-size: 2rem;
+            font-weight: 800;
+            color: #6b4c8a;
+        }
+        .indicateurs-tapia .i-item .i-label {
+            font-size: 0.8rem;
+            color: #3d6b4f;
+            font-weight: 500;
+        }
+        
+        @media (max-width: 900px) {
+            .grid-2, .grid-3 { grid-template-columns: 1fr 1fr; }
+            .container { padding: 20px; }
+            h1 { font-size: 2rem; }
+            .projet-menu { margin-left: 0; }
+            .resultats-clefs { grid-template-columns: 1fr 1fr; }
+            .indicateurs-tapia { grid-template-columns: 1fr 1fr; }
+        }
+        @media (max-width: 600px) {
+            .grid-2, .grid-3 { grid-template-columns: 1fr; }
+            .resultats-clefs { grid-template-columns: 1fr; }
+            .indicateurs-tapia { grid-template-columns: 1fr; }
+            .projet-menu .btn-projet { width: 100%; text-align: center; }
+            .description-portfolio { margin-left: 0; padding-left: 0; }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+
+        <!-- HEADER -->
+        <h1>
+            <i class="fas fa-tree"></i> Portfolio – Responsable SIG
+            <span class="sig-badge"><i class="fas fa-map"></i> Cartographie &amp; Analyse spatiale</span>
+        </h1>
+        <div class="description-portfolio">
+            Ce portfolio présente les principaux résultats des projets auxquels j'ai contribué en tant que Responsable SIG. Il illustre les activités de cartographie, les analyses spatiales, les actions de terrain et les résultats obtenus auprès des communautés locales et des administrations.
+        </div>
+
+        <!-- MENU PROJETS -->
+        <div class="projet-menu">
+            <button class="btn-projet active" data-projet="pamfor"><i class="fas fa-tree"></i> PAMFOR</button>
+            <button class="btn-projet" data-projet="landcam"><i class="fas fa-map"></i> LANDCAM</button>
+            <button class="btn-projet" data-projet="camerr"><i class="fas fa-seedling"></i> CAMERR</button>
+            <button class="btn-projet" data-projet="mosotry"><i class="fas fa-mountain"></i> MOSOTRY</button>
+            <button class="btn-projet" data-projet="tapia"><i class="fas fa-globe-africa"></i> TAPIA</button>
+        </div>
+
+        <!-- ============================================================ -->
+        <!-- PROJET PAMFOR (avec carte interactive) -->
+        <!-- ============================================================ -->
+        <div id="projet-pamfor" class="projet-content active">
+            
+            <div class="projet-header">
+                <h2><i class="fas fa-tree" style="color:#2b7a4b;"></i> PAMFOR</h2>
+                <span class="projet-badge"><i class="fas fa-flag-eu"></i> Union Européenne</span>
+                <span class="periode"><i class="fas fa-calendar-alt"></i> 2021 – 2025</span>
+            </div>
+
+            <div class="responsable-sig">
+                <h3><i class="fas fa-user"></i> Responsable SIG et Télédétection</h3>
+                <p class="nom">TCHUINTE Kamsu Mirna Jolle</p>
+                <div class="role-tags">
+                    <span><i class="fas fa-map"></i> Production cartographique</span>
+                    <span><i class="fas fa-chart-line"></i> Analyse spatiale</span>
+                    <span><i class="fas fa-database"></i> Gestion de bases de données SIG</span>
+                    <span><i class="fas fa-file-alt"></i> Cartes pour rapports</span>
+                    <span><i class="fas fa-check-circle"></i> Contrôle qualité</span>
+                    <span><i class="fas fa-chart-bar"></i> Indicateurs spatiaux</span>
+                    <span><i class="fas fa-users"></i> Appui aux équipes terrain</span>
+                </div>
+            </div>
+
+            <div class="but-objectif">
+                <h3><i class="fas fa-bullseye"></i> But et objectif</h3>
+                <p><span class="but">But :</span> Accompagner les efforts de diminution de l'exploitation illégale du bois au Cameroun.</p>
+                <p><span class="objectif">Objectif :</span> Améliorer la transparence du secteur forestier au Cameroun en vue de la concrétisation de l'APV FLEGT.</p>
+            </div>
+
+            <div class="section-title" style="margin-top:20px;">
+                <i class="fas fa-trophy"></i> Résultats atteints
+                <span class="badge-projet">Chiffres clés</span>
+            </div>
+
+            <div class="resultats-clefs">
+                <div class="r-item"><div class="r-nb">503</div><div class="r-label">Rapports publiés</div></div>
+                <div class="r-item"><div class="r-nb">494</div><div class="r-label">Rapports vérifiés</div></div>
+                <div class="r-item"><div class="r-nb">204</div><div class="r-label">Postes de contrôle recensés</div></div>
+                <div class="r-item"><div class="r-nb">256 M</div><div class="r-label">Pertes fiscales/an (axe Ntui-Yoko)</div></div>
+                <div class="r-item"><div class="r-nb">9 000</div><div class="r-label">m³/mois de bois illégal (Moloundou)</div></div>
+                <div class="r-item"><div class="r-nb">3</div><div class="r-label">Investigations sur les hotspots</div></div>
+            </div>
+
+            <!-- CARTE PAMFOR -->
+            <div class="section-title" style="margin-top:30px;">
+                <i class="fas fa-map"></i> Postes de contrôle identifiés
+                <span class="badge-projet"><i class="fas fa-layer-group"></i> 204 points</span>
+            </div>
+            <div class="card" style="padding:10px;">
+                <h3 style="margin:10px 10px 14px 10px;">
+                    <i class="fas fa-location-dot" style="color:#20B2AA;"></i> 
+                    Postes forestiers et barrières – Cartographie interactive
+                    <span class="pill pill-sig" style="margin-left:10px;"><i class="fas fa-map"></i> Leaflet + UTM</span>
+                </h3>
+                <div id="mapPamfor" class="leaflet-container"></div>
+                <div class="loading" id="loadingPamfor"><i class="fas fa-spinner fa-spin"></i> Chargement...</div>
+                <div class="legend">
+                    <span><span class="legend-dot" style="background:#20B2AA;"></span> PCFC (100)</span>
+                    <span><span class="legend-dot" style="background:#b38f00;"></span> Barrières (104)</span>
+                    <span><span class="legend-dot" style="background:#d43f3f;"></span> Alertes prioritaires</span>
+                    <span><span class="legend-dot" style="background:#8B4513;"></span> Foyers Mbam (8)</span>
+                </div>
+                <div class="stats-mini">
+                    <span class="item"><i class="fas fa-circle" style="color:#20B2AA;"></i> PCFC : <span id="countPcfc">0</span></span>
+                    <span class="item"><i class="fas fa-circle" style="color:#b38f00;"></i> Barrières : <span id="countBarrieres">0</span></span>
+                    <span class="item"><i class="fas fa-map-marker-alt"></i> Total : <span id="countTotalPamfor">0</span></span>
+                </div>
+                <p style="font-size:0.85rem; color:#4d7a5d; margin:10px 0 0 10px;">
+                    <i class="fas fa-info-circle"></i> Conversion UTM 32N/33N → WGS84 (EPSG:4326)
+                </p>
+            </div>
+
+            <!-- GALERIE PAMFOR -->
+            <div style="margin: 30px 0 10px 0;">
+                <h3><i class="fas fa-images"></i> Cartes produites – PAMFOR</h3>
+                <div class="gallery">
+                    <div class="gallery-item">
+                        <a href="INDICE EXPLOITATION ILLEGALE MESSAMENA A3.png" target="_blank">
+                            <img src="INDICE EXPLOITATION ILLEGALE MESSAMENA A3.png" alt="Carte Messamena" />
+                        </a>
+                        <div class="caption">Carte – Messamena</div>
+                        <div class="sub-caption">Exploitation illégale</div>
+                    </div>
+                    <div class="gallery-item">
+                        <a href="Carte des checkpoints region de Centre.png" target="_blank">
+                            <img src="Carte des checkpoints region de Centre.png" alt="Carte Centre" />
+                        </a>
+                        <div class="caption">Postes de contrôle – Centre</div>
+                        <div class="sub-caption">Check-points et barrières</div>
+                    </div>
+                    <div class="gallery-item">
+                        <a href="Carte des checkpoints region de L_Est_V2.pdf" target="_blank">
+                            <img src="Carte des checkpoints region de L_Est_V2.pdf" alt="Carte Est" />
+                        </a>
+                        <div class="caption">Postes de contrôle – Est</div>
+                        <div class="sub-caption">Messamena et environs</div>
+                    </div>
+                    <div class="gallery-item">
+                        <a href="Carte des checkpoints region du Sud.png" target="_blank">
+                            <img src="Carte des checkpoints region du Sud.png" alt="Carte Sud" />
+                        </a>
+                        <div class="caption">Postes de contrôle – Sud</div>
+                        <div class="sub-caption">Ebolowa, Sangmélima, Kribi</div>
+                    </div>
+                    <div class="gallery-item">
+                        <a href="Rapport alertes timby.JPG" target="_blank">
+                            <img src="Rapport alertes timby.JPG" alt="Vue nationale Timby" />
+                        </a>
+                        <div class="caption">Vue nationale – Alertes Timby</div>
+                        <div class="sub-caption">503 rapports – 9 non vérifiés</div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="section-title" style="margin-top:20px;"><i class="fas fa-handshake"></i> Partenaires</div>
+            <div class="card">
+                <div class="flex-row" style="justify-content:space-around;">
+                    <span><i class="fas fa-european-union fa-3x" style="color:#004d99;"></i> <br /><strong>UE</strong></span>
+                    <span><i class="fas fa-globe fa-3x" style="color:#2b6f4b;"></i> <br /><strong>WRI</strong></span>
+                    <span><i class="fas fa-building fa-3x" style="color:#1a5c36;"></i> <br /><strong>CED</strong></span>
+                    <span><i class="fas fa-chiefs fa-3x" style="color:#b38f00;"></i> <br /><strong>ReCTrad</strong></span>
+                    <span><i class="fas fa-chiefs fa-3x" style="color:#b38f00;"></i> <br /><strong>FLAG</strong></span>
+                    <span><i class="fas fa-chiefs fa-3x" style="color:#b38f00;"></i> <br /><strong>FODER</strong></span>
+                </div>
+            </div>
+        </div>
+        <!-- FIN PAMFOR -->
+
+        <!-- ============================================================ -->
+        <!-- PROJET LANDCAM (sans carte interactive) -->
+        <!-- ============================================================ -->
+        <div id="projet-landcam" class="projet-content">
+            
+            <div class="projet-header">
+                <h2><i class="fas fa-map" style="color:#b38f00;"></i> LANDCAM</h2>
+                <span class="projet-badge"><i class="fas fa-globe-africa"></i> IIED / UE</span>
+                <span class="periode"><i class="fas fa-calendar-alt"></i> 2017 – 2023</span>
+            </div>
+
+            <div class="responsable-sig">
+                <h3><i class="fas fa-user"></i> Responsable SIG et Télédétection</h3>
+                <p class="nom">TCHUINTE Kamsu Mirna Jolle</p>
+                <div class="role-tags">
+                    <span><i class="fas fa-map"></i> Cartographie participative</span>
+                    <span><i class="fas fa-chart-line"></i> Analyse spatiale</span>
+                    <span><i class="fas fa-database"></i> Gestion bases de données SIG</span>
+                    <span><i class="fas fa-file-alt"></i> Cartes pour rapports</span>
+                    <span><i class="fas fa-vector-square"></i> Numérisation</span>
+                    <span><i class="fas fa-check-circle"></i> Contrôle qualité</span>
+                    <span><i class="fas fa-users"></i> Appui aux équipes terrain</span>
+                </div>
+            </div>
+
+            <div class="but-objectif">
+                <h3><i class="fas fa-bullseye"></i> But et objectif</h3>
+                <p><span class="but">But :</span> Sécuriser les droits fonciers et améliorer la gouvernance des terres et des ressources au Cameroun.</p>
+                <p><span class="objectif">Objectif :</span> Contribuer à une réforme foncière juste et inclusive en soutenant la participation citoyenne et en formulant des recommandations basées sur des données empiriques.</p>
+            </div>
+
+            <div class="section-title" style="margin-top:20px;">
+                <i class="fas fa-trophy"></i> Résultats atteints
+                <span class="badge-projet">Chiffres clés</span>
+            </div>
+
+            <div class="resultats-clefs">
+                <div class="r-item"><div class="r-nb">6</div><div class="r-label">Années de recherche-action-plaidoyer</div></div>
+                <div class="r-item"><div class="r-nb">3</div><div class="r-label">Sites pilotes</div></div>
+                <div class="r-item"><div class="r-nb">3</div><div class="r-label">Semaines du foncier</div></div>
+                <div class="r-item"><div class="r-nb">3</div><div class="r-label">Dialogues gouvernement-parlement</div></div>
+                <div class="r-item"><div class="r-nb">40+</div><div class="r-label">Étudiants formés</div></div>
+                <div class="r-item"><div class="r-nb">50+</div><div class="r-label">Lettres circulaires du MINDCAF</div></div>
+            </div>
+
+            <!-- Régions couvertes -->
+            <div class="grid-2" style="margin:20px 0;">
+                <div class="card" style="border-top: 4px solid #d43f3f;">
+                    <h4><i class="fas fa-exclamation-triangle" style="color:#d43f3f;"></i> Chevauchements identifiés</h4>
+                    <ul style="margin-left:18px; list-style-type:square; color:#1a4a2a; line-height:1.8; margin-top:8px;">
+                        <li><strong>23 permis miniers</strong> chevauchent des concessions forestières</li>
+                        <li><strong>156 000 ha</strong> de forêts communautaires impactées</li>
+                        <li><strong>8 UFA</strong> concernées</li>
+                        <li><strong>2012-2019</strong> : Évolution du cadastre analysée</li>
+                    </ul>
+                </div>
+                <div class="card" style="border-top: 4px solid #b38f00;">
+                    <h4><i class="fas fa-map" style="color:#b38f00;"></i> Régions couvertes</h4>
+                    <ul style="margin-left:18px; list-style-type:square; color:#1a4a2a; line-height:1.8; margin-top:8px;">
+                        <li><strong>Sud</strong> – Ebolowa, Sangmélima, Kribi</li>
+                        <li><strong>Centre</strong> – Yaoundé, Mbalmayo</li>
+                        <li><strong>Est</strong> – Bertoua, Yokadouma</li>
+                        <li><strong>Littoral</strong> – Douala, Edéa</li>
+                        <li><strong>Nord</strong> – Garoua</li>
+                        <li><strong>Adamaoua</strong> – Ngaoundéré</li>
+                        <li><strong>Extrême-Nord</strong> – Maroua, Waza</li>
+                    </ul>
+                </div>
+            </div>
+
+            <!-- GALERIE LANDCAM -->
+            <div style="margin: 30px 0 10px 0;">
+                <h3><i class="fas fa-images"></i> Cartes produites – LANDCAM</h3>
+                <div class="gallery">
+                    <div class="gallery-item">
+                        <a href="Projets Campo_avec terroirs.jpg" target="_blank">
+                            <img src="Projets Campo_avec terroirs.jpg" alt="Carte Campo" />
+                        </a>
+                        <div class="caption">Carte – Site de l'Océan</div>
+                        <div class="sub-caption">Projets et usages – Terroirs communautaires</div>
+                    </div>
+                    <div class="gallery-item">
+                        <a href="Les sites de chevauchement des projets au Cameroun (2019)_MINFOF_WRI.jpg" target="_blank">
+                            <img src="Les sites de chevauchement des projets au Cameroun (2019)_MINFOF_WRI.jpg" alt="Chevauchements" />
+                        </a>
+                        <div class="caption">Chevauchements des projets</div>
+                        <div class="sub-caption">Cameroun 2019 – MINFOF / WRI</div>
+                    </div>
+                    <div class="gallery-item">
+                        <a href="UFA 07-006 constat.jpg" target="_blank">
+                            <img src="UFA 07-006 constat.jpg" alt="UFA 07-006" />
+                        </a>
+                        <div class="caption">UFA 07-006 – Constat</div>
+                        <div class="sub-caption">Analyse des concessions forestières</div>
+                    </div>
+                    <div class="gallery-item">
+                        <a href="6. Dja - Ngoyla.jpg" target="_blank">
+                            <img src="6. Dja - Ngoyla.jpg" alt="Dja - Ngoyla" />
+                        </a>
+                        <div class="caption">Dja – Ngoyla</div>
+                        <div class="sub-caption">Zone d'intervention – Réserve de faune</div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="section-title" style="margin-top:20px;"><i class="fas fa-handshake"></i> Partenaires</div>
+            <div class="card">
+                <div class="flex-row" style="justify-content:space-around;">
+                    <span><i class="fas fa-european-union fa-3x" style="color:#004d99;"></i> <br /><strong>UE</strong></span>
+                    <span><i class="fas fa-globe fa-3x" style="color:#2b6f4b;"></i> <br /><strong>IIED</strong></span>
+                    <span><i class="fas fa-building fa-3x" style="color:#1a5c36;"></i> <br /><strong>CED</strong></span>
+                    <span><i class="fas fa-chiefs fa-3x" style="color:#b38f00;"></i> <br /><strong>RELUFA</strong></span>
+                </div>
+            </div>
+        </div>
+        <!-- FIN LANDCAM -->
+
+        <!-- ============================================================ -->
+        <!-- PROJET CAMERR (sans carte interactive) -->
+        <!-- ============================================================ -->
+        <div id="projet-camerr" class="projet-content">
+            
+            <div class="projet-header">
+                <h2><i class="fas fa-seedling" style="color:#1a8c4a;"></i> CAMERR</h2>
+                <span class="projet-badge"><i class="fas fa-tree"></i> Reboisement &amp; Sensibilisation</span>
+                <span class="periode"><i class="fas fa-calendar-alt"></i> 2022 – 2025</span>
+            </div>
+
+            <div class="responsable-sig">
+                <h3><i class="fas fa-user"></i> Chargée de projet SIG</h3>
+                <p class="nom">TCHUINTE Kamsu Mirna Jolle</p>
+                <div class="role-tags">
+                    <span><i class="fas fa-map"></i> Cartographie des parcelles reboisées</span>
+                    <span><i class="fas fa-chart-line"></i> Analyse spatiale</span>
+                    <span><i class="fas fa-database"></i> Gestion bases de données SIG</span>
+                    <span><i class="fas fa-file-alt"></i> Cartes pour rapports</span>
+                    <span><i class="fas fa-check-circle"></i> Contrôle qualité</span>
+                    <span><i class="fas fa-users"></i> Appui aux équipes terrain</span>
+                </div>
+            </div>
+
+            <div class="but-objectif">
+                <h3><i class="fas fa-bullseye"></i> But et objectif</h3>
+                <p><span class="but">But :</span> Contribuer à la restauration des écosystèmes mangroviens et à l'amélioration des conditions de vie des communautés locales.</p>
+                <p><span class="objectif">Objectif :</span> Reboiser les zones dégradées, sensibiliser les communautés et développer des activités génératrices de revenus durables.</p>
+            </div>
+
+            <div class="section-title" style="margin-top:20px;">
+                <i class="fas fa-trophy"></i> Résultats atteints
+                <span class="badge-projet">Chiffres clés</span>
+            </div>
+
+            <div class="resultats-clefs">
+                <div class="r-item"><div class="r-nb">26</div><div class="r-label">Parcelles reboisées</div></div>
+                <div class="r-item"><div class="r-nb">~450 ha</div><div class="r-label">Superficie totale reboisée</div></div>
+                <div class="r-item"><div class="r-nb">3</div><div class="r-label">Partenaires de mise en œuvre</div></div>
+                <div class="r-item"><div class="r-nb">25</div><div class="r-label">Établissements sensibilisés</div></div>
+                <div class="r-item"><div class="r-nb">1 500+</div><div class="r-label">Personnes sensibilisées</div></div>
+                <div class="r-item"><div class="r-nb">16</div><div class="r-label">Sites AGR</div></div>
+                <div class="r-item"><div class="r-nb">1</div><div class="r-label">Géodatabase créée</div></div>
+                <div class="r-item"><div class="r-nb">5</div><div class="r-label">Cartes produites</div></div>
+            </div>
+
+            <div class="grid-2" style="margin:20px 0;">
+                <div class="card" style="border-top: 4px solid #d43f3f;">
+                    <h4><i class="fas fa-school" style="color:#d43f3f;"></i> Sensibilisation</h4>
+                    <ul style="margin-left:18px; list-style-type:square; color:#1a4a2a; line-height:1.8; margin-top:8px;">
+                        <li><strong>25</strong> établissements sensibilisés</li>
+                        <li><strong>1 500+</strong> personnes touchées</li>
+                        <li><strong>3 départements</strong> : Moungo, Wouri, Sanaga Maritime</li>
+                        <li><strong>2022-2025</strong> : Programme continu</li>
+                    </ul>
+                </div>
+                <div class="card" style="border-top: 4px solid #b38f00;">
+                    <h4><i class="fas fa-hand-holding-heart" style="color:#b38f00;"></i> AGR</h4>
+                    <ul style="margin-left:18px; list-style-type:square; color:#1a4a2a; line-height:1.8; margin-top:8px;">
+                        <li><strong>16</strong> sites AGR identifiés</li>
+                        <li><strong>3 types</strong> : agricoles, fumoirs améliorés, micro-projets</li>
+                        <li><strong>Partenaires</strong> : CAMECO, CWCS, WTG</li>
+                        <li><strong>Objectif</strong> : Autonomisation des communautés</li>
+                    </ul>
+                </div>
+            </div>
+
+            <div class="section-title" style="margin-top:20px;"><i class="fas fa-handshake"></i> Partenaires</div>
+            <div class="card">
+                <div class="flex-row" style="justify-content:space-around;">
+                    <span><i class="fas fa-building fa-3x" style="color:#1a5c36;"></i> <br /><strong>Planète Urgence Cameroun</strong><br /><small>Mise en œuvre</small></span>
+                    <span><i class="fas fa-building fa-3x" style="color:#2b6f4b;"></i> <br /><strong>CWCS</strong><br /><small>Mise en œuvre</small></span>
+                    <span><i class="fas fa-building fa-3x" style="color:#b38f00;"></i> <br /><strong>WTG</strong><br /><small>Mise en œuvre</small></span>
+                    <span><i class="fas fa-building fa-3x" style="color:#d43f3f;"></i> <br /><strong>CAMECO</strong><br /><small>Mise en œuvre</small></span>
+                    <span><i class="fas fa-globe fa-3x" style="color:#004d99;"></i> <br /><strong>Orange</strong><br /><small>Bailleur</small></span>
+                    <span><i class="fas fa-building fa-3x" style="color:#b38f00;"></i> <br /><strong>Davidson</strong><br /><small>Bailleur</small></span>
+                </div>
+            </div>
+        </div>
+        <!-- FIN CAMERR -->
+
+        <!-- ============================================================ -->
+        <!-- PROJET MOSOTRY (sans carte interactive) -->
+        <!-- ============================================================ -->
+        <div id="projet-mosotry" class="projet-content">
+            
+            <div class="projet-header">
+                <h2><i class="fas fa-mountain" style="color:#d43f3f;"></i> MOSOTRY</h2>
+                <span class="projet-badge"><i class="fas fa-search"></i> Pré-diagnostic</span>
+                <span class="periode"><i class="fas fa-calendar-alt"></i> 2026</span>
+            </div>
+
+            <div class="responsable-sig">
+                <h3><i class="fas fa-user"></i> Responsable SIG et Télédétection</h3>
+                <p class="nom">TCHUINTE Kamsu Mirna Jolle</p>
+                <div class="role-tags">
+                    <span><i class="fas fa-map"></i> Cartographie des zones d'intervention</span>
+                    <span><i class="fas fa-chart-line"></i> Analyse spatiale</span>
+                    <span><i class="fas fa-database"></i> Gestion bases de données SIG</span>
+                    <span><i class="fas fa-file-alt"></i> Cartes pour rapports</span>
+                    <span><i class="fas fa-check-circle"></i> Contrôle qualité</span>
+                </div>
+            </div>
+
+            <div class="but-objectif">
+                <h3><i class="fas fa-bullseye"></i> But et objectif</h3>
+                <p><span class="but">But :</span> Réaliser un pré-diagnostic des zones à fort potentiel pour le développement de projets miniers et d'infrastructures.</p>
+                <p><span class="objectif">Objectif :</span> Cartographier les zones d'intervention potentielles et analyser les pressions foncières et environnementales.</p>
+            </div>
+
+            <div class="section-title" style="margin-top:20px;">
+                <i class="fas fa-trophy"></i> Résultats atteints
+                <span class="badge-projet">Chiffres clés</span>
+            </div>
+
+            <div class="resultats-clefs">
+                <div class="r-item"><div class="r-nb">16</div><div class="r-label">Cartes produites</div></div>
+                <div class="r-item"><div class="r-nb">1</div><div class="r-label">Géodatabase créée</div></div>
+                <div class="r-item"><div class="r-nb">5</div><div class="r-label">Paysages analysés</div></div>
+            </div>
+
+            <div class="grid-2" style="margin:20px 0;">
+                <div class="card" style="border-top: 4px solid #d43f3f;">
+                    <h4><i class="fas fa-map" style="color:#d43f3f;"></i> Paysages analysés</h4>
+                    <ul style="margin-left:18px; list-style-type:square; color:#1a4a2a; line-height:1.8; margin-top:8px;">
+                        <li><strong>Anosy</strong> – Pressions anthropiques</li>
+                        <li><strong>Menabe</strong> – Dynamique des mangroves</li>
+                        <li><strong>Fort Dauphin</strong> – Zones sensibles</li>
+                        <li><strong>Boeny</strong> – Suivi des écosystèmes</li>
+                        <li><strong>Analanjirofo</strong> – Analyse multi-critères</li>
+                    </ul>
+                </div>
+                <div class="card" style="border-top: 4px solid #b38f00;">
+                    <h4><i class="fas fa-database" style="color:#b38f00;"></i> Production SIG</h4>
+                    <ul style="margin-left:18px; list-style-type:square; color:#1a4a2a; line-height:1.8; margin-top:8px;">
+                        <li><strong>16 cartes</strong> produites</li>
+                        <li><strong>1 géodatabase</strong> créée</li>
+                        <li><strong>2026</strong> : Période d'analyse</li>
+                    </ul>
+                </div>
+            </div>
+
+            <!-- GALERIE MOSOTRY -->
+            <div style="margin: 30px 0 10px 0;">
+                <h3><i class="fas fa-images"></i> Cartes produites – MOSOTRY</h3>
+                <div class="gallery">
+                    <div class="gallery-item">
+                        <a href="CARTOGRAPHIE_PRESSION_ANTHROPIQUE_Delta_kivalo_29_04_2026.png" target="_blank">
+                            <img src="CARTOGRAPHIE_PRESSION_ANTHROPIQUE_Delta_kivalo_29_04_2026.png" alt="Pression anthropique" />
+                        </a>
+                        <div class="caption">Pression anthropique – Delta Kivalo</div>
+                        <div class="sub-caption">29 avril 2026</div>
+                    </div>
+                    <div class="gallery-item">
+                        <a href="DYNAMIQUE DES MANGROVE BOENY_14_05_2026.png" target="_blank">
+                            <img src="DYNAMIQUE DES MANGROVE BOENY_14_05_2026.png" alt="Dynamique mangrove" />
+                        </a>
+                        <div class="caption">Dynamique des mangroves – Boeny</div>
+                        <div class="sub-caption">14 mai 2026</div>
+                    </div>
+                    <div class="gallery-item">
+                        <a href="CARTOGRAPHIE_PRESSION_ANTHROPIQUE_Belo Sur Tsiribihina_29_04_2026.png" target="_blank">
+                            <img src="CARTOGRAPHIE_PRESSION_ANTHROPIQUE_Belo Sur Tsiribihina_29_04_2026.png" alt="Pression anthropique Belo" />
+                        </a>
+                        <div class="caption">Pression anthropique – Belo</div>
+                        <div class="sub-caption">29 avril 2026</div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="section-title" style="margin-top:20px;"><i class="fas fa-handshake"></i> Partenaires</div>
+            <div class="card">
+                <div class="flex-row" style="justify-content:space-around;">
+                    <span><i class="fas fa-building fa-3x" style="color:#d43f3f;"></i> <br /><strong>MOSOTRY</strong></span>
+                </div>
+            </div>
+        </div>
+        <!-- FIN MOSOTRY -->
+
+        <!-- ============================================================ -->
+        <!-- PROJET TAPIA (sans carte interactive) -->
+        <!-- ============================================================ -->
+        <div id="projet-tapia" class="projet-content">
+            
+            <div class="projet-header">
+                <h2><i class="fas fa-globe-africa" style="color:#6b4c8a;"></i> TAPIA</h2>
+                <span class="projet-badge"><i class="fas fa-handshake"></i> AFD / Planète Urgence</span>
+                <span class="periode"><i class="fas fa-calendar-alt"></i> 2022 – 2025</span>
+            </div>
+
+            <div class="responsable-sig">
+                <h3><i class="fas fa-user"></i> Chargée de projet SIG</h3>
+                <p class="nom">TCHUINTE Kamsu Mirna Jolle</p>
+                <div class="role-tags">
+                    <span><i class="fas fa-map"></i> Production cartographique</span>
+                    <span><i class="fas fa-chart-line"></i> Analyse spatiale</span>
+                    <span><i class="fas fa-database"></i> Gestion bases de données SIG</span>
+                    <span><i class="fas fa-file-alt"></i> Cartes pour rapports</span>
+                    <span><i class="fas fa-check-circle"></i> Contrôle qualité</span>
+                    <span><i class="fas fa-chart-bar"></i> Indicateurs spatiaux</span>
+                    <span><i class="fas fa-users"></i> Appui aux équipes terrain</span>
+                </div>
+            </div>
+
+            <div class="but-objectif">
+                <h3><i class="fas fa-bullseye"></i> But et objectif</h3>
+                <p><span class="but">But :</span> Contribuer à la restauration des paysages forestiers et à l'amélioration des conditions de vie des communautés locales.</p>
+                <p><span class="objectif">Objectif :</span> Analyser et cartographier les paysages, former les acteurs locaux et renforcer les capacités des bénéficiaires.</p>
+            </div>
+
+            <div class="section-title" style="margin-top:20px;">
+                <i class="fas fa-trophy"></i> Indicateurs clés – TAPIA
+                <span class="badge-projet">Chiffres</span>
+            </div>
+
+            <div class="indicateurs-tapia">
+                <div class="i-item"><div class="i-nb">5 954 <span style="font-size:1rem; color:#3d6b4f;">ha</span></div><div class="i-label">Superficie analysée</div></div>
+                <div class="i-item"><div class="i-nb">19</div><div class="i-label">Paysages étudiés</div></div>
+                <div class="i-item"><div class="i-nb">2022-2025</div><div class="i-label">Période d'analyse</div></div>
+                <div class="i-item"><div class="i-nb">40</div><div class="i-label">Cartes produites</div></div>
+                <div class="i-item"><div class="i-nb">2</div><div class="i-label">Géodatabases créées</div></div>
+                <div class="i-item"><div class="i-nb">~5 421</div><div class="i-label">Acteurs formés</div></div>
+                <div class="i-item"><div class="i-nb">3</div><div class="i-label">Partenaires</div></div>
+            </div>
+
+            <div class="grid-2" style="margin:20px 0;">
+                <div class="card" style="border-top: 4px solid #1a8c4a;">
+                    <h4><i class="fas fa-tree" style="color:#1a8c4a;"></i> Projet DAV (2022–2024)</h4>
+                    <ul style="margin-left:18px; list-style-type:square; color:#1a4a2a; line-height:1.8; margin-top:8px;">
+                        <li><strong>3 693 ha</strong> analysés</li>
+                        <li><strong>12 sites</strong> paysages</li>
+                        <li><strong>~5 421</strong> bénéficiaires formés</li>
+                    </ul>
+                </div>
+                <div class="card" style="border-top: 4px solid #6b4c8a;">
+                    <h4><i class="fas fa-globe-africa" style="color:#6b4c8a;"></i> Projet TAPIA (AFD) · 2025</h4>
+                    <ul style="margin-left:18px; list-style-type:square; color:#1a4a2a; line-height:1.8; margin-top:8px;">
+                        <li><strong>2 260 ha</strong> analysés</li>
+                        <li><strong>7 sites</strong> paysages</li>
+                        <li><strong>Objectif :</strong> 11 343 bénéficiaires</li>
+                    </ul>
+                </div>
+            </div>
+
+            <div style="margin: 30px 0 10px 0;">
+                <h3><i class="fas fa-images"></i> Cartes produites – TAPIA</h3>
+                <div class="gallery">
+                    <div class="gallery-item">
+                        <a href="#" target="_blank">
+                            <img src="media/image1.png" alt="Carte TAPIA" />
+                        </a>
+                        <div class="caption">Carte TAPIA</div>
+                        <div class="sub-caption">Analyse des paysages forestiers</div>
+                    </div>
+                    <div class="gallery-item">
+                        <a href="#" target="_blank">
+                            <img src="media/image2.png" alt="Carte TAPIA" />
+                        </a>
+                        <div class="caption">Carte TAPIA</div>
+                        <div class="sub-caption">Zones d'intervention DAV</div>
+                    </div>
+                    <div class="gallery-item">
+                        <a href="#" target="_blank">
+                            <img src="media/image3.png" alt="Carte TAPIA" />
+                        </a>
+                        <div class="caption">Carte TAPIA</div>
+                        <div class="sub-caption">Zones d'intervention AFD</div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="section-title" style="margin-top:20px;"><i class="fas fa-handshake"></i> Partenaires</div>
+            <div class="card">
+                <div class="flex-row" style="justify-content:space-around;">
+                    <span><i class="fas fa-globe fa-3x" style="color:#004d99;"></i> <br /><strong>AFD</strong><br /><small>Bailleur</small></span>
+                    <span><i class="fas fa-building fa-3x" style="color:#b38f00;"></i> <br /><strong>Davidson</strong><br /><small>Bailleur</small></span>
+                    <span><i class="fas fa-building fa-3x" style="color:#1a5c36;"></i> <br /><strong>Planète Urgence Madagascar</strong><br /><small>Mise en œuvre</small></span>
+                </div>
+            </div>
+        </div>
+        <!-- FIN TAPIA -->
+
+        <!-- FOOTER -->
+        <footer>
+            <p><i class="fas fa-map"></i> Portfolio – Responsable SIG &bull; Cartographie et analyse spatiale au service des communautés</p>
+        </footer>
+
+    </div>
+
+    <script>
+        // ============================================================
+        // MENU PROJETS – Navigation
+        // ============================================================
+        document.addEventListener('DOMContentLoaded', function() {
+            
+            const btns = document.querySelectorAll('.btn-projet');
+            const contents = document.querySelectorAll('.projet-content');
+
+            btns.forEach(btn => {
+                btn.addEventListener('click', function() {
+                    btns.forEach(b => b.classList.remove('active'));
+                    this.classList.add('active');
+                    contents.forEach(c => c.classList.remove('active'));
+                    const projet = this.dataset.projet;
+                    document.getElementById('projet-' + projet).classList.add('active');
+                    
+                    // Redimensionner la carte PAMFOR si elle est active
+                    if (projet === 'pamfor') {
+                        setTimeout(() => {
+                            if (mapPamfor) mapPamfor.invalidateSize();
+                        }, 300);
+                    }
+                });
+            });
+
+            // ============================================================
+            // PROJECTIONS UTM
+            // ============================================================
+            proj4.defs('EPSG:32632', '+proj=utm +zone=32 +ellps=WGS84 +datum=WGS84 +units=m +no_defs');
+            proj4.defs('EPSG:32633', '+proj=utm +zone=33 +ellps=WGS84 +datum=WGS84 +units=m +no_defs');
+
+            function utmToWgs84(x, y, zone) {
+                try {
+                    const epsgCode = zone === 33 ? 'EPSG:32633' : 'EPSG:32632';
+                    const result = proj4(epsgCode, 'EPSG:4326', [x, y]);
+                    return { lat: result[1], lng: result[0] };
+                } catch (e) {
+                    return null;
+                }
+            }
+
+            // ============================================================
+            // CARTE PAMFOR
+            // ============================================================
+            const mapPamfor = L.map('mapPamfor').setView([4.5, 12.5], 6);
+            L.tileLayer('https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png', {
+                attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>, &copy; CartoDB'
+            }).addTo(mapPamfor);
+
+            const pcfcIcon = L.divIcon({
+                className: 'custom-icon',
+                html: '<i class="fas fa-circle" style="color:#20B2AA; font-size:16px; text-shadow:0 0 4px #000;"></i>',
+                iconSize: [16, 16],
+                iconAnchor: [8, 8]
+            });
+            const barrierIcon = L.divIcon({
+                className: 'custom-icon',
+                html: '<i class="fas fa-circle" style="color:#b38f00; font-size:14px; text-shadow:0 0 4px #000;"></i>',
+                iconSize: [14, 14],
+                iconAnchor: [7, 7]
+            });
+            const redIcon = L.divIcon({
+                className: 'custom-icon',
+                html: '<i class="fas fa-circle" style="color:#d43f3f; font-size:22px; text-shadow:0 0 4px #000;"></i>',
+                iconSize: [22, 22],
+                iconAnchor: [11, 11]
+            });
+            const mbamIcon = L.divIcon({
+                className: 'custom-icon',
+                html: '<i class="fas fa-circle" style="color:#8B4513; font-size:18px; text-shadow:0 0 4px #000;"></i>',
+                iconSize: [18, 18],
+                iconAnchor: [9, 9]
+            });
+
+            // Données PAMFOR simplifiées
+            const pcfcData = [
+                // Littoral (32N) - PCFC
+                [510323, 435071, 32, 'PCFC', 'Moungo', 'Dibombari', 'Bomono'],
+                [603501, 547875, 32, 'PCFC', 'Moungo', 'Nkongsamba 3', 'Mbarresoumtou'],
+                [647856, 550844, 32, 'PCFC', 'Nkam', 'Ndobian', 'Ndobian'],
+                [607145, 492478, 32, 'PCFC', 'Nkam', 'Yabassi', 'Yabassi'],
+                [603501, 547875, 32, 'PCFC', 'Moungo', 'Njombe-Penja', 'Njombe'],
+                [603493, 547878, 32, 'PCFC', 'Moungo', 'Mombo', 'Mombo'],
+                [574995, 474983, 32, 'PCFC', 'Moungo', 'Bonalea', 'Bonalea'],
+                [580557, 522298, 32, 'PCFC', 'Moungo', 'Loum', 'Loum'],
+                [588081, 402221, 32, 'PCFC', 'Sanaga Maritime', 'Mouanko', 'Mouanko'],
+                [613196, 414187, 32, 'PCFC', 'Sanaga Maritime', 'Dizangue', 'Dizangue'],
+                [664100, 456401, 32, 'PCFC', 'Sanaga Maritime', 'Massock-Songloulou', 'Massock Songloulou'],
+                [623915, 437350, 32, 'PCFC', 'Sanaga Maritime', 'Kopongo', 'Kopongo'],
+                [624698, 420037, 32, 'PCFC', 'Sanaga Maritime', 'Edea 1', 'Edéa'],
+                [669854, 426442, 32, 'PCFC', 'Sanaga Maritime', 'Pouma', 'Pouma'],
+                [599302, 441952, 32, 'PCFC', 'Sanaga Maritime', 'Dibamba', 'Missolé'],
+                [623324, 422165, 32, 'PCFC', 'Sanaga Maritime', 'Edéa 2', 'Ekité'],
+                [576259, 446400, 32, 'PCFC', 'Wouri', 'Douala 1', 'Aéroport'],
+                [575661, 445879, 32, 'PCFC', 'Wouri', 'Douala 1', 'Port 2'],
+                [588606, 443259, 32, 'PCFC', 'Wouri', 'Douala 3', 'Yassa'],
+                [578431, 446041, 32, 'PCFC', 'Wouri', 'Douala 2', 'New bell'],
+                [640897, 415189, 32, 'PCFC', 'Sanaga Maritime', 'Ngwei', 'Ngwei'],
+                [578431, 446041, 32, 'PCFC', 'Sanaga Maritime', 'Ndom', 'Ndom'],
+                [575681, 445906, 32, 'PCFC', 'Wouri', 'Douala 1', 'Port 1'],
+                [680813, 467885, 32, 'PCFC', 'Sanaga Maritime', 'Ngambe', 'Ngambé'],
+                [592417, 458360, 32, 'PCFC', 'Wouri', 'Douala 5', 'PK 24'],
+                [575661, 444819, 32, 'PCFC', 'Wouri', 'Douala 1', 'Port entré maersh'],
+                [584733, 452901, 32, 'PCFC', 'Wouri', 'Douala 5', 'Kotto'],
+                [573978, 450890, 32, 'PCFC', 'Wouri', 'Douala 4', ''],
+                [577736, 448920, 32, 'PCFC', 'Wouri', 'Douala 1', 'Port entré sandaga'],
+                [572358, 419556, 32, 'PCFC', 'Wouri', 'Douala 6', 'Manoka'],
+                [591520, 535902, 32, 'PCFC', 'Moungo', 'Manjo', 'Manjo'],
+                [606172, 554618, 32, 'PCFC', 'Moungo', 'Bare Bakem', 'BARE'],
+                [597863, 539134, 32, 'PCFC', 'Moungo', 'Nlonako', 'Ebone'],
+                [604839, 566314, 32, 'PCFC', 'Moungo', 'Melong', 'memong'],
+                [603501, 547875, 32, 'PCFC', 'Moungo', 'Nkongsamba 1', 'Eboum1'],
+                
+                // Barrières Littoral
+                [691673, 357878, 32, 'Barrière', 'Ocean', 'LOLODORF', 'LOLODORF'],
+                [625712, 381663, 32, 'Barrière', 'Ocean', 'LOKOUNDJIE', 'ELOGBATINDI'],
+                [613653, 331850, 32, 'Barrière', 'Ocean', 'LOKOUNDJIE', 'BISSIANG'],
+                [604733, 321894, 32, 'Barrière', 'Ocean', 'KRIBI I', 'LENDI'],
+                [600704, 319907, 32, 'Barrière', 'Ocean', 'KRIBI I', 'EBOME'],
+                [600704, 319907, 32, 'Barrière', 'Ocean', 'KRIBI I', 'EBONE'],
+                [813089, 370880, 32, 'Barrière', 'Dja et Lobo', 'ZOETELE', 'Melomebae'],
+                [769395, 341518, 32, 'Barrière', 'Mvila', 'NGOULEMAKONG', 'QUARTIER MBAMA'],
+                [765937, 317513, 32, 'Barrière', 'Mvila', 'BIWOONG BULU', 'NKOLBITIYE'],
+                [762416, 308221, 32, 'Barrière', 'Mvila', 'BIWOONG BULU', 'BIWONG BULU'],
+                [760983, 247254, 32, 'Barrière', 'Valle del Ntem', 'KYE-OSSI', 'AKONANGUI'],
+                [754609, 264351, 32, 'Barrière', 'Valle del Ntem', 'AMBAM', 'AKOULOUZOCK'],
+                [753059, 258145, 32, 'Barrière', 'Valle del Ntem', 'AMBAM', 'THO 2'],
+                [752020, 265658, 32, 'Barrière', 'Valle del Ntem', 'AMBAM', 'AMBAM-YAT'],
+                [750291, 260550, 32, 'Barrière', 'Valle del Ntem', 'AMBAM', 'ZAMIKAN'],
+                [748201, 318986, 32, 'Barrière', 'Mvila', 'BIWOONG BULU', 'AKAK YEVOL'],
+                [744732, 248718, 32, 'Barrière', 'Valle del Ntem', 'OLAMZE', 'ENGOZOCK'],
+                [743117, 316573, 32, 'Barrière', 'Mvila', 'EBOLOWA 2', 'NLAYOP'],
+                [739302, 319303, 32, 'Barrière', 'Mvila', 'EBOLOWA 2', 'NVAM-ESSAKOE'],
+                [735955, 326783, 32, 'Barrière', 'Mvila', 'EBOLOWA I', 'MEBAE'],
+                [734740, 334509, 32, 'Barrière', 'Mvila', 'BIWONG BANE', 'MELANGUE 1'],
+                [733594, 318642, 32, 'Barrière', 'Mvila', 'EBOLOWA I', 'ANDO’O'],
+                [732961, 325154, 32, 'Barrière', 'Mvila', 'EBOLOWA I', 'EVESS'],
+                [726090, 284830, 32, 'Barrière', 'Valle del Ntem', 'AMBAM', 'MEYO-CENTRE'],
+                [714670, 280078, 32, 'Barrière', 'Valle del Ntem', 'MAAN', 'MEBEM'],
+
+                // Sud - PCFC
+                [625712, 381663, 32, 'PCFC', 'Ocean', 'LOKOUNDJIE', 'FIFINDA'],
+                [600926, 325529, 32, 'PCFC', 'Ocean', 'KRIBI I', ''],
+                [831665, 325403, 32, 'PCFC', 'Dja et Lobo', 'SANGMELIMA', 'SANGMELIMA'],
+                [820818, 359928, 32, 'PCFC', 'Dja et Lobo', 'ZOETELE', 'Ville de zoétélé'],
+                [777925, 345522, 32, 'PCFC', 'Mvila', 'BIWONG BANE', 'BIWONG BANE'],
+                [766161, 325106, 32, 'PCFC', 'Mvila', 'NGOULEMAKONG', 'QUARTIER MBAMA'],
+                [761725, 308241, 32, 'PCFC', 'Mvila', 'BIWOONG BULU', 'BIWONG BULU'],
+                [761006, 240856, 32, 'PCFC', 'Valle del Ntem', 'KYE-OSSI', 'KYE-OSSI'],
+                [752144, 263716, 32, 'PCFC', 'Valle del Ntem', 'AMBAM', 'AMBAM'],
+                [740656, 323858, 32, 'PCFC', 'Mvila', 'EBOLOWA 2', 'ANGALE'],
+                [735672, 325415, 32, 'PCFC', 'Mvila', 'EBOLOWA I', 'NGALANE'],
+                [732697, 244659, 32, 'PCFC', 'Valle del Ntem', 'OLAMZE', 'OLAMZE'],
+                [725933, 284041, 32, 'PCFC', 'Valle del Ntem', 'AMBAM', 'MEYO-CENTRE'],
+                [681410, 262088, 32, 'PCFC', 'Valle del Ntem', 'MAAN', 'MAAN'],
+
+                // Est (33N) - PCFC
+                [314868, 630432, 33, 'PCFC', 'Lom et Djerem', 'Bétaré-Oya', 'Mbitom'],
+                [450773, 650298, 33, 'PCFC', 'Lom et Djerem', 'Garoua-Boulaï', 'Garoua-Boulaï'],
+                [398379, 618909, 33, 'PCFC', 'Lom et Djerem', 'Bétaré-Oya', 'Bétaré-Oya'],
+                [310597, 544463, 33, 'PCFC', 'Lom et Djerem', 'Bélabo', 'Bélabo'],
+                [270102, 485747, 33, 'PCFC', 'Haut-Nyong', 'Doumaintang', 'Doumaintang'],
+                [329078, 468962, 33, 'PCFC', 'Haut-Nyong', 'Doumé', 'Doumé'],
+                [342760, 484698, 33, 'PCFC', 'Haut-Nyong', 'Dimako', 'Dimako'],
+                [351503, 350034, 33, 'PCFC', 'Haut-Nyong', 'Lomié', 'Lomié'],
+                [393886, 361764, 33, 'PCFC', 'Haut-Nyong', 'Lomié', 'ZoulabotI'],
+                [323240, 393415, 33, 'PCFC', 'Haut-Nyong', 'Dja', 'Mindourou'],
+                [338666, 377005, 33, 'PCFC', 'Haut-Nyong', 'Dja', 'Djaposten'],
+                [418835, 438647, 33, 'PCFC', 'Kadey', 'Mbang', 'Mbang plateau'],
+                [489967, 445902, 33, 'PCFC', 'Kadey', 'Ndélélé', 'Ndélélé'],
+                [429514, 499188, 33, 'PCFC', 'Kadey', 'Batouri', 'Batouri/sous-préfecture'],
+                [311884, 382664, 33, 'PCFC', 'Haut-Nyong', 'Messok', 'Messok'],
+                [505648, 388780, 33, 'PCFC', 'Kadey', 'Yokadouma', 'Yokadouma'],
+                [450064, 575018, 33, 'PCFC', 'Kadey', 'Ouli', 'Mbotoro/sous-préfecture'],
+                [618530, 290060, 33, 'PCFC', 'Kadey', 'Salapoumbé', 'Libongo'],
+                [346647, 503274, 33, 'PCFC', 'Lom et Djerem', 'Bertoua 1er', 'Bonis'],
+                [336158, 574607, 33, 'PCFC', 'Lom et Djerem', 'Bélabo', 'Deng-Deng'],
+
+                // Est - Barrières
+                [358583, 500927, 33, 'Barrière', 'Lom et Djerem', 'Bertoua 2ème', 'Kano'],
+                [313840, 654867, 33, 'Barrière', 'Lom et Djerem', 'Bétaré-Oya', 'Ngaindara'],
+                [330202, 575735, 33, 'Barrière', 'Lom et Djerem', 'Bélabo', 'Yanda'],
+                [402748, 609751, 33, 'Barrière', 'Lom et Djerem', 'Bétaré-Oya', 'Ndokayo'],
+                [330202, 562113, 33, 'Barrière', 'Lom et Djerem', 'Bélabo', 'Mbaki'],
+                [336149, 574609, 33, 'Barrière', 'Lom et Djerem', 'Bélabo', 'Ekombitié'],
+                [336149, 562113, 33, 'Barrière', 'Lom et Djerem', 'Bélabo', 'Goyoum'],
+                [363632, 506843, 33, 'Barrière', 'Lom et Djerem', 'Mandjou', 'Ndong-Mbomé'],
+                [361225, 507892, 33, 'Barrière', 'Lom et Djerem', 'Mandjou', 'Axe du Nord'],
+                [301309, 437123, 33, 'Barrière', 'Haut-Nyong', 'Abong-Mbang', 'Madouma'],
+                [297206, 439387, 33, 'Barrière', 'Haut-Nyong', 'Abong-Mbang', 'Nkol-Volan'],
+                [344872, 503811, 33, 'Barrière', 'Lom et Djerem', 'Diang', 'Bomo'],
+                [323458, 521916, 33, 'Barrière', 'Lom et Djerem', 'Diang', 'NdembaII'],
+                [342443, 483882, 33, 'Barrière', 'Haut-Nyong', 'Dimako', 'Dieu Connait'],
+                [251289, 439925, 33, 'Barrière', 'Haut-Nyong', 'Bebend', 'Mbama'],
+                [270032, 485360, 33, 'Barrière', 'Haut-Nyong', 'Doumaintang', 'NkaI'],
+                [297793, 443024, 33, 'Barrière', 'Haut-Nyong', 'Doumé', 'Mampang'],
+                [342929, 483297, 33, 'Barrière', 'Haut-Nyong', 'Dimako', 'Beul'],
+                [351503, 351520, 33, 'Barrière', 'Haut-Nyong', 'Lomié', 'Payo'],
+                [356846, 347774, 33, 'Barrière', 'Haut-Nyong', 'Lomié', 'Kampala'],
+                [323277, 393395, 33, 'Barrière', 'Haut-Nyong', 'Dja', 'Mindourou'],
+                [338622, 376977, 33, 'Barrière', 'Haut-Nyong', 'Dja', 'Dioula'],
+                [397465, 454589, 33, 'Barrière', 'Kadey', 'Mbang', 'Ndjemiong'],
+                [464695, 464363, 33, 'Barrière', 'Kadey', 'Ndélélé', 'Kendzou'],
+                [503375, 461544, 33, 'Barrière', 'Kadey', 'Kengzou', 'Sous-manguier'],
+                [394544, 495557, 33, 'Barrière', 'Kadey', 'Batouri', 'Gadji'],
+                [508281, 388559, 33, 'Barrière', 'Kadey', 'Yokadouma', 'Biwala'],
+                [503603, 398484, 33, 'Barrière', 'Kadey', 'Yokadouma', 'Bienemama'],
+                [506597, 392559, 33, 'Barrière', 'Kadey', 'Yokadouma', 'Gaisingo'],
+                [479269, 476282, 33, 'Barrière', 'Kadey', 'Nguelebok', 'Koba'],
+                [504810, 384019, 33, 'Barrière', 'Kadey', 'Yokadouma', 'Mendougui'],
+                [449286, 575018, 33, 'Barrière', 'Kadey', 'Ouli', 'Bounou'],
+                [504810, 384019, 33, 'Barrière', 'Kadey', 'Yokadouma', 'Mbol2'],
+                [346647, 503274, 33, 'Barrière', 'Lom et Djerem', 'Bertoua 1er', 'Bonis'],
+                [351668, 512149, 33, 'Barrière', 'Lom et Djerem', 'Bertoua 1er', 'Koumé Goffi'],
+                [345835, 635805, 33, 'Barrière', 'Lom et Djerem', 'Bétaré-Oya', 'Mboukou'],
+
+                // Centre (32N) - PCFC
+                [640208, 380410, 32, 'PCFC', 'Nyong et Kelle', 'Messondo', 'Messondo'],
+                [731182, 459473, 32, 'PCFC', 'Nyong et Kelle', 'Nguibassal', 'Nguibassal'],
+                [711496, 439916, 32, 'PCFC', 'Nyong et Kelle', 'Bot-Makak', 'Bot-Makak'],
+                [697706, 540727, 32, 'PCFC', 'Mbam et Inoubou', 'Makenene', 'Makenene'],
+                [747940, 526262, 32, 'PCFC', 'Mbam et Inoubou', 'Bafia', 'Bafia'],
+                [791935, 482167, 32, 'PCFC', 'Mbam et Kim', 'Mbangassina', 'Natchigal'],
+                [791409, 492119, 32, 'PCFC', 'Mbam et Kim', 'Ntui', 'Ntui'],
+                [822603, 492834, 32, 'PCFC', 'Haute Sanaga', 'Mbandjock', 'Mbandjock Centre'],
+                [847150, 499626, 32, 'PCFC', 'Haute Sanaga', 'Nkoteng', 'Nkoteng'],
+                [925054, 505177, 32, 'PCFC', 'Haute Sanaga', 'Minta', 'Minta Centre'],
+                [831492, 466679, 32, 'PCFC', 'Mefou et Afamba', 'Affanloum', 'Affanloum'],
+                [793150, 410126, 32, 'PCFC', 'Mefou et Afamba', 'DDFOF-Mfou', 'Mfou'],
+                [831994, 430878, 32, 'PCFC', 'Mefou et Afamba', 'Olanguina', 'Assamba'],
+                [820147, 453222, 32, 'PCFC', 'Mefou et Afamba', 'Esse', 'Esse'],
+                [793189, 410108, 32, 'PCFC', 'Mefou et Afamba', 'Mfou', 'Mfou'],
+                [772406, 420094, 32, 'PCFC', 'Mfoundi', 'Yaounde 3', 'Efoulan'],
+                [780268, 419136, 32, 'PCFC', 'Mfoundi', 'Yaounde 4', 'Kondengui'],
+                [779585, 429865, 32, 'PCFC', 'Mfoundi', 'Yaounde 1', 'Nlongkak'],
+                [780224, 429626, 32, 'PCFC', 'Mfoundi', 'Yaounde 1', 'Etouameki'],
+                [772119, 428721, 32, 'PCFC', 'Mfoundi', 'Yaounde 7', 'Nkolbissong'],
+                [784216, 429048, 32, 'PCFC', 'Mfoundi', 'Yaounde 5', 'Nkonmesseng'],
+                [775034, 424846, 32, 'PCFC', 'Mfoundi', 'Yaounde 6', 'Biyemassi'],
+                [888938, 442956, 32, 'PCFC', 'Nyong et Mfoumou', 'Nyakokombo', 'Kodombo'],
+
+                // Centre - Barrières
+                [669087, 418571, 32, 'Barrière', 'Nyong et Kelle', 'Messondo', 'Sokelle'],
+                [661480, 408793, 32, 'Barrière', 'Nyong et Kelle', 'Messondo', 'Ndonguen'],
+                [727760, 449260, 32, 'Barrière', 'Nyong et Kelle', 'Nguibassal', 'Somakai'],
+                [698451, 404056, 32, 'Barrière', 'Nyong et Kelle', 'Eseka', 'Kossin'],
+                [709065, 436437, 32, 'Barrière', 'Nyong et Kelle', 'Ngog-Mapubi', ''],
+                [693504, 422114, 32, 'Barrière', 'Nyong et Kelle', 'Biyouha', ''],
+                [714800, 443363, 32, 'Barrière', 'Nyong et Kelle', 'Bot-Makak', 'Manguenda'],
+                [756353, 533455, 32, 'Barrière', 'Mbam et Inoubou', 'Deuk', 'Carrefour Egona'],
+                [751742, 527208, 32, 'Barrière', 'Mbam et Inoubou', 'Bafia', 'Nyamsong 2'],
+                [697619, 540820, 32, 'Barrière', 'Mbam et Inoubou', 'Ndikinimeki', 'Brigade'],
+                [744927, 527520, 32, 'Barrière', 'Mbam et Inoubou', 'Bafia', 'Biamo'],
+                [747208, 522123, 32, 'Barrière', 'Mbam et Inoubou', 'Bafia', 'Binya'],
+                [702008, 532552, 32, 'Barrière', 'Mbam et Inoubou', 'Ndikinimeki', 'Nebolen'],
+                [844827, 498774, 32, 'Barrière', 'Haute Sanaga', 'Nkoteng', 'Bifogo'],
+                [768440, 462040, 32, 'Barrière', 'Lekie', 'Elig-Mfomo', 'Nkolguene'],
+                [743793, 452645, 32, 'Barrière', 'Lekie', 'Evodoula', 'Evodoula Centre'],
+                [772328, 463797, 32, 'Barrière', 'Lekie', 'Obala', 'Yemkout'],
+                [778774, 458293, 32, 'Barrière', 'Lekie', 'Lobo', 'PK02'],
+                [765747, 472374, 32, 'Barrière', 'Lekie', 'Saa', 'Nkolgock'],
+                [795757, 474374, 32, 'Barrière', 'Lekie', 'Batchenga', 'Carrefour Ntui'],
+                [761365, 472258, 32, 'Barrière', 'Lekie', 'Ebebda', 'Polo'],
+                [772962, 437068, 32, 'Barrière', 'Lekie', 'Okola', 'Ngoya'],
+                [825361, 461391, 32, 'Barrière', 'Mefou et Afamba', 'Affanloum', 'Aboto'],
+                [766778, 468899, 32, 'Barrière', 'Lekie', 'Monatele', 'Ngomo'],
+                [752490, 457720, 32, 'Barrière', 'Lekie', 'Elig-Mfomo', 'Endama'],
+                [820882, 454338, 32, 'Barrière', 'Mefou et Afamba', 'Esse', 'Ehan'],
+                [805250, 441291, 32, 'Barrière', 'Mefou et Afamba', '', 'Nkolya'],
+                [820070, 442523, 32, 'Barrière', 'Mefou et Afamba', '', 'Nguida'],
+                [787647, 421848, 32, 'Barrière', 'Mefou et Afamba', 'Mfou', 'Nkogoa'],
+                [796018, 407179, 32, 'Barrière', 'Mefou et Afamba', '', 'Ekok'],
+                [786589, 408836, 32, 'Barrière', 'Mefou et Afamba', '', 'Nkizock'],
+                [802516, 434333, 32, 'Barrière', 'Mefou et Afamba', 'Awae', 'Elat'],
+                [794075, 443993, 32, 'Barrière', 'Mefou et Afamba', '', 'Femimbang'],
+                [793913, 459150, 32, 'Barrière', 'Mefou et Afamba', 'Edzendouan', 'Ndzana'],
+                [780371, 427901, 32, 'Barrière', 'Mfoundi', 'Yaounde 2', 'Gare'],
+                [772406, 420094, 32, 'Barrière', 'Mfoundi', 'Yaounde 4', 'Ahala'],
+                [784991, 432363, 32, 'Barrière', 'Mfoundi', 'Yaounde 2', 'Olembe'],
+                [774038, 421774, 32, 'Barrière', 'Mfoundi', 'Yaounde 6', 'Simbock'],
+                [772363, 431288, 32, 'Barrière', 'Mfoundi', 'Yaounde 7', 'Beatitude'],
+                [780268, 419136, 32, 'Barrière', 'Mfoundi', 'Yaounde 5', 'Odza'],
+                [785004, 432374, 32, 'Barrière', 'Mfoundi', 'Yaounde 5', 'Fougerol'],
+                [783327, 451055, 32, 'Barrière', 'Lekie', '', 'Check-point tracabilte'],
+                [785458, 463009, 32, 'Barrière', 'Lekie', '', 'Minkama']
+            ];
+
+            let countPcfc = 0, countBarrieres = 0;
+            const markerGroupPamfor = L.layerGroup();
+
+            pcfcData.forEach(row => {
+                const x = row[0], y = row[1], zone = row[2], type = row[3];
+                const dept = row[4] || '', arr = row[5] || '', loc = row[6] || '';
+                const converted = utmToWgs84(x, y, zone);
+                if (!converted) return;
+                const isPcfc = type && (type.toUpperCase() === 'PCFC' || type.toUpperCase().includes('PCFC'));
+                if (isPcfc) countPcfc++;
+                else if (type && type.length > 0) countBarrieres++;
+                const icon = isPcfc ? pcfcIcon : barrierIcon;
+                const marker = L.marker([converted.lat, converted.lng], { icon: icon });
+                let popup = '<b>Détails du poste</b><br/>';
+                if (dept) popup += `<strong>Département</strong> : ${dept}<br/>`;
+                if (arr) popup += `<strong>Arrondissement</strong> : ${arr}<br/>`;
+                if (loc) popup += `<strong>Localité</strong> : ${loc}<br/>`;
+                if (type) popup += `<strong>Type</strong> : ${type}<br/>`;
+                popup += `<br/><em>Zone UTM : ${zone}N</em>`;
+                marker.bindPopup(popup);
+                markerGroupPamfor.addLayer(marker);
+            });
+
+            const mbamFoyers = [
+                { lat: 4.65, lng: 11.45, nom: 'Ndjolé' },
+                { lat: 4.70, lng: 11.50, nom: 'Nyem' },
+                { lat: 4.55, lng: 11.55, nom: 'UFA 08002' },
+                { lat: 4.60, lng: 11.40, nom: 'Lena' },
+                { lat: 4.68, lng: 11.48, nom: 'Nsimi' },
+                { lat: 4.72, lng: 11.52, nom: 'Meloké' },
+                { lat: 4.40, lng: 11.30, nom: 'Bounyoungoulouk' },
+                { lat: 4.85, lng: 11.20, nom: 'Ngoro' }
+            ];
+            mbamFoyers.forEach(f => {
+                const marker = L.marker([f.lat, f.lng], { icon: mbamIcon });
+                marker.bindPopup(`<b>${f.nom}</b><br/>Foyer identifié par le CED (2024)`);
+                markerGroupPamfor.addLayer(marker);
+            });
+
+            L.marker([4.60, 11.40], { icon: redIcon }).addTo(mapPamfor).bindPopup('<b>Mbam</b><br/>256 M FCFA/an');
+            L.marker([2.03, 15.20], { icon: redIcon }).addTo(mapPamfor).bindPopup('<b>Moloundou</b><br/>9 000 m³/mois');
+            L.marker([4.00, 13.70], { icon: redIcon }).addTo(mapPamfor).bindPopup('<b>Messamena</b><br/>Exploitation illégale');
+
+            markerGroupPamfor.addTo(mapPamfor);
+            document.getElementById('countPcfc').textContent = countPcfc;
+            document.getElementById('countBarrieres').textContent = countBarrieres;
+            document.getElementById('countTotalPamfor').textContent = pcfcData.length + mbamFoyers.length;
+            if (pcfcData.length > 0) {
+                const bounds = markerGroupPamfor.getBounds();
+                if (bounds.isValid()) mapPamfor.fitBounds(bounds, { padding: [40, 40] });
+            }
+            document.getElementById('loadingPamfor').innerHTML = '✅ ' + (pcfcData.length + mbamFoyers.length) + ' points affichés';
+        });
+    </script>
+
+</body>
+</html>
